@@ -16,7 +16,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
 
 	homePage(db)
 	if err != nil {
@@ -38,8 +37,10 @@ func setupDB() (*bolt.DB, error) {
 		if err != nil {
 			return fmt.Errorf("failed to create bucket: %s", err)
 		}
+
 		return nil
 	})
+
 	fmt.Println("DB connection OK")
 	return db, nil
 }
@@ -50,6 +51,7 @@ func updateItem(db *bolt.DB, key []byte, value []byte) error {
 		err := b.Put([]byte(key), []byte(value))
 		return err
 	})
+
 	return err
 }
 
@@ -82,6 +84,7 @@ func returnAllItems(db *bolt.DB) {
 			fmt.Printf("%s: %s\n", k, v)
 			return nil
 		})
+
 		return nil
 	})
 }
@@ -97,11 +100,12 @@ func homePage(db *bolt.DB) {
 	fmt.Println("Enter 4 to exit")
 	fmt.Scanln(&input)
 	switch input {
-	case 1: // returns users item based on key to them. TODO check for blank item
+	case 1: // Returns users item based on key to them. TODO check for blank item
 		fmt.Println("Input key")
 		fmt.Scanln(&key)
 		viewItem(db, key)
 		homePage(db)
+
 	case 2: // Allows user to enter a item into the db
 		fmt.Println("Input key")
 		fmt.Scanln(&key)
@@ -112,10 +116,13 @@ func homePage(db *bolt.DB) {
 		updateItem(db, key, []byte(value))
 		returnInputItem(db, key)
 		homePage(db)
-	case 3: // returns all entries in the db
+
+	case 3: // Returns all entries in the db
 		returnAllItems(db)
 		homePage(db)
-	case 4: // closes the program
+
+	case 4: // Closes the DB and program
+		db.Close()
 		os.Exit(0)
 	}
 }
